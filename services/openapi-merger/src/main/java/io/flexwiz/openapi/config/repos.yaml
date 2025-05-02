@@ -1,0 +1,18 @@
+# Repository Configuration
+openapi-merger:
+  repositories:
+    - name: "user-service"
+      url: "https://github.com/flexwiz/user-service"
+      branch: "main"
+      specPath: "src/main/resources/openapi.yaml"
+      token: "${github.token}"
+    - name: "order-service"
+      url: "https://github.com/flexwiz/order-service"
+      branch: "main"
+      specPath: "src/main/resources/openapi.json"
+      token: "${github.token}"
+    - name: "payment-service"
+      url: "https://github.com/flexwiz/payment-service"
+      branch: "main"
+      specPath: "api/openapi.yaml"
+      token: "${github.token}"
