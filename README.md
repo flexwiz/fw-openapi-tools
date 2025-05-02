@@ -1,2 +1,2 @@
-# fw-openapi-viewer
+# fw-openapi-tools
 OpenAPI Specifications Viewer
