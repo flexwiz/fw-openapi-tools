@@ -1,0 +1,26 @@
+services:
+  openapi-merger:
+    container_name: openapi-merger
+    image: ${REPOSITORY:-flexwiz}/openapi-merger:${IMAGE_VERSION:-latest}
+    build:
+      context: services/openapi-merger
+      dockerfile: docker/Dockerfile.native
+      target: production
+      # cache_from:
+      #   - alpine:latest
+      args:
+        IMAGE_VERSION: ${IMAGE_VERSION:-1.0.0}
+        SONAR_ENABLED: ${SONAR_ENABLE:-false}
+        SONAR_URL: ${SONAR_URL:-http://sonar:9000}
+        # SONAR_ORGANIZATION:
+        # SONAR_USERNAME: admin
+        # SONAR_PASSWORD: admin
+        # SONAR_BRANCH:
+    ports:
+      - 8090:8080
+    networks:
+      - fw-openapi-network
+
+networks:
+  fw-openapi-network:
+    driver: bridge # for local (use overlay for swarm multi nodes)

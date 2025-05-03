@@ -10,7 +10,7 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native-micro -t quarkus/openapi-merger .
+# docker build -f docker/Dockerfile.native-micro -t quarkus/openapi-merger .
 #
 # Then run the container using:
 #

@@ -19,7 +19,7 @@ This project creates a centralized system that:
 3. Provides a web interface for browsing the combined documentation
 4. Offers CI/CD integration for automated updates
 
-## Architecture
+## 🧩 Architecture
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
@@ -44,7 +44,7 @@ This project creates a centralized system that:
 └───────────────────────────────────────────────────────────────┘
 ```
 
-## Technical Stack
+## 🛠️ Technical Stack
 
 - **Backend**: Quarkus (a Kubernetes-native Java framework)
 - **OpenAPI Tools**: Swagger Parser, Swagger Merger
@@ -56,7 +56,7 @@ This project creates a centralized system that:
   - Validation: OpenAPI linters
   - Testing: Contract testing with tools like Pact
 
-## Implementation
+## 🚀 Implementation
 
 ### Project Structure
 
@@ -96,7 +96,7 @@ This project creates a centralized system that:
 ### Core Components
 
 #### Repository Configuration
-We'll create a YAML configuration to specify which repositories and OpenAPI files to merge:
+A YAML configuration to specify which repositories and OpenAPI files to merge:
 
 ```yaml
 repositories:
@@ -144,78 +144,105 @@ A web interface that displays the merged OpenAPI documentation.
 - Create deployment documentation
 - Implement monitoring and logging
 
-## Setup Instructions
-
-### Prerequisites
+## 📋 Prerequisites
 - Java 17 or later
 - Maven 3.8+
 - Docker
 - GitHub personal access token (for accessing repositories)
 
-### Getting Started
+## 🏁 Getting Started
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/mycompany/openapi-merger.git
-   cd openapi-merger
-   ```
+### Clone the Repository
 
-2. **Configure repositories**:
-   Edit `config/repos.yaml` to specify the repositories containing OpenAPI specs.
+```bash
+git clone https://github.com/mycompany/openapi-merger.git
+cd openapi-merger
+```
 
-3. **Build the application**:
-   ```bash
-   ./mvnw package
-   ```
+### Configure Repository Sources
 
-4. **Run locally**:
-   ```bash
-   ./mvnw quarkus:dev
-   ```
+Edit `config/repos.yaml` to specify the repositories containing OpenAPI specs.
 
-5. **Build Docker image**:
-   ```bash
-   docker build -t openapi-merger .
-   ```
+```yaml
+openapi-merger:
+    repositories:
+        - name: "user-service"
+        url: "https://github.com/mycompany/user-service"
+        branch: "main"
+        specPath: "src/main/resources/openapi.yaml"
+        token: "${github.token}"
+        - name: "order-service"
+        url: "https://github.com/mycompany/order-service"
+        branch: "main"
+        specPath: "src/main/resources/openapi.json"
+        token: "${github.token}"
+```
 
-6. **Run with Docker**:
-   ```bash
-   docker run -p 8080:8080 \
-     -v $(pwd)/config:/app/config \
-     -e GITHUB_TOKEN=your_github_token \
-     openapi-merger
-   ```
+### Set Up GitHub Token
 
-7. **Access the UI**:
-   Open `http://localhost:8080` in your browser.
+Create a GitHub personal access token with repo permissions and set it as an environment variable:
 
-## Key Code Components
+```bash
+export GITHUB_TOKEN=your_github_token
+```
 
-### GitHub Client (GitHubClient.java)
+### Build and Run Locally
 
-This component will fetch OpenAPI specs from GitHub repositories.
+```bash
+# Build the application
+./mvnw package
 
-### Merger Service (MergerService.java)
+# Run in development mode
+./mvnw quarkus:dev
+```
 
-The service that handles the merging of multiple OpenAPI specs.
+### Build and Run with Docker
 
-### API Doc Resource (ApiDocResource.java)
+```bash
+# Build Docker image
+docker build -t openapi-merger .
 
-RESTful endpoint for accessing the merged OpenAPI specification.
+# Run with Docker
+docker run -p 8080:8080 \
+    -v $(pwd)/config:/app/config \
+    -e GITHUB_TOKEN=your_github_token \
+    openapi-merger
+```
 
-## Deployment Options
+### Access the UI
+
+Open `http://localhost:8080` in your browser.
+
+## 🚢 Deployment
 
 ### Kubernetes Deployment
 
 Deploy to Kubernetes using the provided manifests:
 
 ```bash
-kubectl apply -f kubernetes/
+kubectl apply -f k8s/
 ```
 
 ### GitHub Actions Workflow
 
 Automate the build and deployment process with GitHub Actions.
+
+## 📖 Usage
+
+### Accessing the API Documentation
+
+- Swagger UI: http://localhost:8080/swagger-ui
+- Custom UI: http://localhost:8080
+- Raw JSON: http://localhost:8080/api-docs
+- Raw YAML: http://localhost:8080/api-docs/yaml
+
+### Refreshing Documentation
+
+To refresh the documentation from source repositories:
+
+```bash
+curl -X GET http://localhost:8080/api-docs/refresh
+```
 
 ## Future Enhancements
 

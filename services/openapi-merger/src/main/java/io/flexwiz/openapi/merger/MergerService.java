@@ -9,13 +9,13 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.flexwiz.openapi.client.GitHubClient;
-import io.flexwiz.openapi.config.RepositoryConfig;
-import io.flexwiz.openapi.merger.OpenApiMerger;
-
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
 import io.swagger.v3.oas.models.OpenAPI;
+
+import io.flexwiz.openapi.client.GitHubClient;
+import io.flexwiz.openapi.config.RepositoryConfig;
+import io.flexwiz.openapi.merger.OpenApiMerger;
 
 /**
  * OpenAPI Merger Service

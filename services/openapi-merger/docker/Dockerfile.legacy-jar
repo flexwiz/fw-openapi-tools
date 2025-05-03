@@ -7,7 +7,7 @@
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.legacy-jar -t quarkus/openapi-merger-legacy-jar .
+# docker build -f docker/Dockerfile.legacy-jar -t quarkus/openapi-merger-legacy-jar .
 #
 # Then run the container using:
 #
