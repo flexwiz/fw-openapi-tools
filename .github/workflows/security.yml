@@ -1,0 +1,21 @@
+# Securite du depot via le reusable workflow org (flexwiz/.github).
+# gitleaks (secrets) + Trivy (vuln/misconfig) + titre de PR Conventional Commits.
+# Source unique : modifier le workflow se fait dans flexwiz/.github.
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  security:
+    permissions:
+      contents: read
+      pull-requests: read
+    # Pinne au SHA (Renovate bumpe) ; commentaire = ref lisible.
+    uses: flexwiz/.github/.github/workflows/security.yml@1aa017f531e8e06233d70eb3a3fc6a29cde23096 # main
+    with:
+      trivy-severity: CRITICAL,HIGH
