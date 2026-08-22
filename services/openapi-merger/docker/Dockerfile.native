@@ -1,0 +1,132 @@
+# syntax=docker/dockerfile:1
+
+####
+# This Dockerfile is used in order to build a container that runs the Quarkus application in native (no JVM) mode.
+#
+# Before building the container image run:
+#
+# ./mvnw package -Dnative
+#
+# Then, build the image with:
+#
+# docker build -f src/main/docker/Dockerfile.native -t quarkus/openapi-merger .
+#
+# Then run the container using:
+#
+# docker run -i --rm -p 8080:8080 quarkus/openapi-merger
+#
+# The ` registry.access.redhat.com/ubi8/ubi-minimal:8.10` base image is based on UBI 9.
+# To use UBI 8, switch to `quay.io/ubi8/ubi-minimal:8.10`.
+###
+
+ARG BUILD_IMAGE=registry.access.redhat.com/ubi8/openjdk-21:1.21
+ARG RUNTIME_IMAGE=registry.access.redhat.com/ubi8/ubi-minimal:8.10
+
+##
+# Stage 1: pull all maven dependencies
+#########################################################################################
+FROM ${BUILD_IMAGE} AS dependencies
+
+# Set working directory
+WORKDIR /build
+
+# Copy the Maven wrapper and pom.xml file
+COPY .mvn/ ./.mvn/
+COPY mvnw .
+COPY pom.xml .
+
+# Cache Maven dependencies
+RUN ./mvnw -B dependency:go-offline
+
+##
+# Stage 2: build the application using Maven
+#########################################################################################
+FROM dependencies AS builder
+
+# Copy source code
+COPY src ./src
+
+# Build native executable with Maven
+RUN ./mvnw package -Pnative -Dquarkus.native.container-build=true -DskipTests
+
+
+##
+# Stage 3: run Sonar analysis (optionnal)
+#########################################################################################
+FROM builder AS sonar
+
+ARG SONAR_ENABLED=false
+ARG SONAR_URL=
+ARG SONAR_ORGANIZATION=
+ARG SONAR_USERNAME=
+ARG SONAR_PASSWORD=
+ARG SONAR_BRANCH=
+
+# RUN if [ "$SONAR_ENABLED" = "true" ] ; \
+#     then mvn -e -B sonar:sonar \
+#     -Dsonar.host.url=${SONAR_URL} \
+#     -Dsonar.organization=${SONAR_ORGANIZATION} \
+#     -Dsonar.branch.name=${SONAR_BRANCH} \
+#     -Dsonar.login=${SONAR_USERNAME} \
+#     -Dsonar.password=${SONAR_PASSWORD}; \
+#     fi
+
+RUN if [ "$SONAR_ENABLED" = "true" ] ; \
+    then mvn -e -B sonar:sonar \
+    -Dsonar.host.url=${SONAR_URL}; \
+    fi
+
+##
+# Stage 4: create a minimal runtime image
+#########################################################################################
+FROM ${RUNTIME_IMAGE} AS production
+
+ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
+
+# Define application home directory
+ENV HOME=/opt/app
+
+# Set work directory
+WORKDIR ${HOME}
+
+# RUN chown 1001 ${HOME} \
+#     && chmod "g+rwX" ${HOME} \
+#     && chown 1001:root ${HOME}
+
+# Install required packages for running native executables
+RUN microdnf install shadow-utils \
+    && microdnf clean all \
+    && echo "quarkus:x:1001:1001:quarkus user:${HOME}:/sbin/nologin" >> /etc/passwd \
+    && echo "quarkus:x:1001:" >> /etc/group \
+    && mkdir -p ${HOME}/data \
+    && chown -R quarkus:quarkus ${HOME}
+
+# Copy the native executable from the build stage
+COPY --from=builder --chown=quarkus:quarkus /build/target/*-runner ./openapi-merger
+
+# Set permissions for the application
+RUN chmod 110 ./openapi-merger
+
+# Set non-root user
+USER quarkus:quarkus
+
+# Expose the application port
+EXPOSE 8080
+
+# USER 1001
+
+# ENTRYPOINT ["./openapi-merger", "-Dquarkus.http.host=0.0.0.0"]
+
+# Set entry point
+ENTRYPOINT ["./openapi-merger"]
+
+# Pass command line parameters to the application
+CMD ["-Dquarkus.http.host=0.0.0.0"]
+
+# Label metadata
+LABEL org.opencontainers.image.title="OpenAPI Merger Application"
+LABEL org.opencontainers.image.description="OpenAPI Merger Application built with Java 21"
+LABEL org.opencontainers.image.vendor="flexwiz.io"
+LABEL org.opencontainers.image.version="1.0.0"
+LABEL org.opencontainers.image.created="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+LABEL org.opencontainers.image.source="https://github.com/flexwiz/fw-openapi-tools"
