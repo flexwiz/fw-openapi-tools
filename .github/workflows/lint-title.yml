@@ -1,0 +1,15 @@
+name: Lint title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+permissions: {}
+
+jobs:
+  lint-title:
+    permissions:
+      pull-requests: read
+    # Reusable org (flexwiz/.github). Allowlist + regles centralisees la-bas.
+    # Pinner au SHA (Renovate met a jour) ; commentaire = ref lisible.
+    uses: flexwiz/.github/.github/workflows/lint-title.yml@6d6469ea6071167fe507c514326ea157069e075e # main
